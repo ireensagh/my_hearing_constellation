@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="space">
+<head>
+<meta charset="UTF-8">
+<title>My Hearing Constellation</title>
+<link rel="stylesheet" href="popup.css">
+</head>
+<body>
+
+<div class="popup" id="popup">
+
+  <div class="header">
+    <div class="title"><span class="sparkle">✦</span> My Hearing Constellation</div>
+    <div class="header-actions">
+      <button class="power-switch on" id="powerSwitch" role="switch" aria-checked="true" aria-label="Hearing correction on or off" title="Correction on">
+        <span class="power-knob"></span>
+      </button>
+      <button class="theme-btn" id="themeBtn" title="Change theme" aria-label="Change theme"></button>
+      <div class="theme-popover" id="themePopover">
+        <div class="swatch space active" data-theme="space" title="Space"><span class="swatch-label">Space</span></div>
+        <div class="swatch kids" data-theme="kids" title="Kids"><span class="swatch-label">Kids</span></div>
+        <div class="swatch blank" data-theme="blank" title="Blank"><span class="swatch-label">Blank</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ear-switch left" id="earSwitch">
+    <div class="thumb"></div>
+    <button class="ear-btn left-btn" data-ear="left"><span class="dot"></span> Left ear</button>
+    <button class="ear-btn right-btn" data-ear="right"><span class="dot"></span> Right ear</button>
+  </div>
+
+  <div class="grid-card">
+    <div class="grid-card-head">
+      <span class="label" id="gridLabel">Left ear audiogram</span>
+      <span class="hint">drag each star to your result ✦</span>
+    </div>
+    <svg class="audiogram" id="svg" viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg">
+      <path class="curve-path" id="curvePath" d=""></path>
+      <g id="stars"></g>
+      <text class="value-label" id="valueLabel" text-anchor="middle" visibility="hidden"></text>
+    </svg>
+  </div>
+
+  <button class="save-btn" id="saveBtn">
+    <span class="save-icon">✦</span>
+    <span id="saveLabel">All up to date</span>
+  </button>
+
+  <div class="status" id="status"><span class="status-dot"></span><span id="statusText">Starting…</span></div>
+  <div class="footnote">Your data stays on this device — never uploaded.</div>
+
+  <div class="toast" id="toast">Saved ✦</div>
+</div>
+
+<script src="popup.js"></script>
+</body>
+</html>
