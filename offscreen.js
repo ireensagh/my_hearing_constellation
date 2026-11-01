@@ -9,7 +9,7 @@ function getContext() {
   return audioCtx;
 }
 
-async function startTab({ tabId, streamId, leftEar, rightEar }) {
+async function startTab({ tabId, streamId, leftEar, rightEar, strength }) {
   if (sessions.has(tabId)) return { ok: true };
 
   const ctx = getContext();
@@ -27,7 +27,7 @@ async function startTab({ tabId, streamId, leftEar, rightEar }) {
 
   const engine = new window.HearingConstellationEngine(ctx);
   engine.connectStream(stream);
-  engine.setAudiogram(leftEar, rightEar); // undefined audiogram = flat, no correction
+  engine.setAudiogram(leftEar, rightEar, strength); // undefined audiogram = flat, no correction
 
   sessions.set(tabId, { stream, engine });
   stream.getAudioTracks().forEach((track) =>
@@ -58,7 +58,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         else stopTab(message.tabId);
         return { ok: true };
       case 'AUDIOGRAM_UPDATED':
-        sessions.forEach((s) => s.engine.setAudiogram(message.leftEar, message.rightEar));
+        sessions.forEach((s) => s.engine.setAudiogram(message.leftEar, message.rightEar, message.strength));
         return { ok: true };
       case 'GET_STATUS':
         return { active: sessions.has(message.tabId) };

@@ -213,6 +213,26 @@ svg.audiogram{ width:100%; height:auto; display:block; touch-action:none; user-s
   pointer-events:none;
 }
 
+/* ---- strength slider ---- */
+.strength{ margin:0 2px 16px; transition:opacity .3s ease; }
+.popup.off .strength{ opacity:.4; }
+.strength-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px; }
+.strength-head .label{ font-size:11px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:var(--text-muted); }
+.strength-value{ font-family:var(--font-display); font-weight:700; font-size:13px; color:var(--star); }
+.strength-ends{ display:flex; justify-content:space-between; margin-top:4px; font-size:9.5px; color:var(--text-muted); opacity:.75; }
+#strength{
+  --pct:75%;
+  -webkit-appearance:none; appearance:none; width:100%; height:6px; margin:0; border-radius:999px; cursor:pointer;
+  background:linear-gradient(90deg, var(--accent-a), var(--accent-b)) 0/var(--pct) 100% no-repeat, var(--switch-track);
+}
+#strength::-webkit-slider-thumb{
+  -webkit-appearance:none; appearance:none; width:18px; height:18px; border-radius:50%;
+  background:var(--star); border:2px solid var(--bg-1); box-shadow:0 0 10px var(--star-glow);
+  transition:transform .15s ease;
+}
+#strength::-webkit-slider-thumb:hover{ transform:scale(1.15); }
+#strength:focus-visible{ outline:2px solid var(--star); outline-offset:4px; }
+
 /* ---- save button ---- */
 .save-btn{
   width:100%; border:none; border-radius:16px; padding:13px 0;

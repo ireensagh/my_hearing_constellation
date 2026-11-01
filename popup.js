@@ -14,6 +14,7 @@
   const earSwitch = $('earSwitch'), gridLabel = $('gridLabel');
   const powerSwitch = $('powerSwitch'), popup = $('popup');
   const statusEl = $('status'), statusText = $('statusText');
+  const strengthInput = $('strength'), strengthValue = $('strengthValue');
 
   // Default = 0 dB everywhere (normal hearing) so nothing is "corrected" until the
   // user enters their own results.
@@ -22,6 +23,7 @@
     saved: null,
     ear: 'left',
     enabled: true,
+    strength: 75,
     tabId: null
   };
 
@@ -210,6 +212,21 @@
     setTimeout(() => toast.classList.remove('show'), 1600);
   });
 
+  // Strength is a live control: it applies and persists as you move it (no Save needed),
+  // so you can tune it by ear while audio plays.
+  function applyStrengthUi(v) {
+    strengthInput.value = v;
+    strengthInput.style.setProperty('--pct', v + '%');
+    strengthValue.textContent = v + '%';
+  }
+  let strengthTimer = null;
+  strengthInput.addEventListener('input', () => {
+    state.strength = Number(strengthInput.value);
+    applyStrengthUi(state.strength);
+    clearTimeout(strengthTimer);
+    strengthTimer = setTimeout(() => chrome.storage.local.set({ strength: state.strength }), 120);
+  });
+
   function applyPowerUi(on) {
     powerSwitch.classList.toggle('on', on);
     powerSwitch.setAttribute('aria-checked', String(on));
@@ -251,11 +268,13 @@
   (async function init() {
     drawGrid();
 
-    const stored = await chrome.storage.local.get(['leftEar', 'rightEar', 'isEnabled', 'theme']);
+    const stored = await chrome.storage.local.get(['leftEar', 'rightEar', 'isEnabled', 'theme', 'strength']);
     if (stored.leftEar) state.data.left = objToArr(stored.leftEar);
     if (stored.rightEar) state.data.right = objToArr(stored.rightEar);
     state.saved = clone(state.data);
     state.enabled = stored.isEnabled ?? true;
+    state.strength = stored.strength ?? 75;
+    applyStrengthUi(state.strength);
 
     applyTheme(stored.theme || 'space');
     applyPowerUi(state.enabled);

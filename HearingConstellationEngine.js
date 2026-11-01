@@ -98,18 +98,22 @@ class HearingConstellationEngine {
     return 0;
   }
 
-  /** NAL-R insertion gain per band (dB), aligned with BANDS. */
-  static computeNALR(thresholds) {
+  /**
+   * NAL-R insertion gain per band (dB), aligned with BANDS.
+   * strength (0..1) scales the prescribed gain: 1 = full NAL-R, 0 = no correction.
+   */
+  static computeNALR(thresholds, strength = 1) {
+    const s = Math.min(Math.max(Number.isFinite(strength) ? strength : 1, 0), 1);
     const h = (f) => HearingConstellationEngine.thresholdAt(thresholds, f);
     const x = 0.05 * (h(500) + h(1000) + h(2000));
     return HearingConstellationEngine.BANDS.map(({ freq, k }) => {
       const gain = x + 0.31 * h(freq) + k;
-      return Math.min(Math.max(gain, 0), HearingConstellationEngine.MAX_GAIN_DB);
+      return Math.min(Math.max(gain, 0), HearingConstellationEngine.MAX_GAIN_DB) * s;
     });
   }
 
-  _applyEar(chain, thresholds) {
-    const gains = HearingConstellationEngine.computeNALR(thresholds);
+  _applyEar(chain, thresholds, strength) {
+    const gains = HearingConstellationEngine.computeNALR(thresholds, strength);
     const t = this.ctx.currentTime;
 
     chain.filters.forEach((f, i) => f.gain.setTargetAtTime(gains[i], t, 0.05));
@@ -122,16 +126,18 @@ class HearingConstellationEngine {
     const maxLoss = Math.max(
       ...HearingConstellationEngine.AUDIOGRAM_FREQS.map((f) => HearingConstellationEngine.thresholdAt(thresholds, f))
     );
-    chain.compressor.ratio.value = maxLoss <= 20 ? 1 : 3;
+    // Compression eases in with strength too: ratio 1 (off) at 0%, 3 at 100%.
+    const s = Math.min(Math.max(Number.isFinite(strength) ? strength : 1, 0), 1);
+    chain.compressor.ratio.value = maxLoss <= 20 ? 1 : 1 + 2 * s;
 
     return gains;
   }
 
-  /** Apply independent audiograms for left and right ears ({125: dB, 250: dB, ...}). */
-  setAudiogram(leftThresholds, rightThresholds) {
+  /** Apply independent audiograms ({125: dB, 250: dB, ...}) and a strength (0..1). */
+  setAudiogram(leftThresholds, rightThresholds, strength = 1) {
     return {
-      leftGains: this._applyEar(this.leftChain, leftThresholds),
-      rightGains: this._applyEar(this.rightChain, rightThresholds)
+      leftGains: this._applyEar(this.leftChain, leftThresholds, strength),
+      rightGains: this._applyEar(this.rightChain, rightThresholds, strength)
     };
   }
 

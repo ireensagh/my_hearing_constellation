@@ -28,8 +28,8 @@ function toOffscreen(message) {
 }
 
 async function getAudiogram() {
-  const { leftEar, rightEar } = await chrome.storage.local.get(['leftEar', 'rightEar']);
-  return { leftEar, rightEar };
+  const { leftEar, rightEar, strength } = await chrome.storage.local.get(['leftEar', 'rightEar', 'strength']);
+  return { leftEar, rightEar, strength: (strength ?? 75) / 100 };
 }
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
@@ -65,7 +65,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
 // Push saved audiogram changes to any running audio sessions.
 chrome.storage.onChanged.addListener(async (changes, area) => {
-  if (area !== 'local' || !(changes.leftEar || changes.rightEar)) return;
+  if (area !== 'local' || !(changes.leftEar || changes.rightEar || changes.strength)) return;
   if (!(await chrome.offscreen.hasDocument())) return;
   const audiogram = await getAudiogram();
   toOffscreen({ type: 'AUDIOGRAM_UPDATED', ...audiogram }).catch(() => {});
